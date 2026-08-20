@@ -1,148 +1,166 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="vi" class="dark">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>VMI Bot Dashboard</title>
-<style>
-*{box-sizing:border-box}
-:root{
-  --bg:#08090d;--panel:#11131a;--panel2:#171a23;--line:#252a36;
-  --text:#f4f5f7;--muted:#8e95a5;--red:#ff304f;--yellow:#ffd43b;
-}
-body{margin:0;background:radial-gradient(circle at 80% 0,#281019 0,#08090d 35%);color:var(--text);font-family:Inter,Arial,sans-serif}
-button{font:inherit}
-.app{display:flex;min-height:100vh}
-.sidebar{width:245px;background:rgba(10,11,16,.94);border-right:1px solid var(--line);padding:22px 15px;position:fixed;inset:0 auto 0 0}
-.logo{font-size:23px;font-weight:900;padding:8px 12px 25px}.logo span{color:var(--red)}
-.nav{display:grid;gap:7px}
-.nav button{border:0;background:transparent;color:#aeb4c1;text-align:left;padding:13px 14px;border-radius:10px;cursor:pointer}
-.nav button:hover,.nav button.active{background:#1b1e27;color:#fff}
-.nav button.active{box-shadow:inset 3px 0 var(--red)}
-.main{margin-left:245px;width:calc(100% - 245px);padding:24px}
-.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:25px}
-.title h1{margin:0;font-size:28px}.title p{margin:6px 0;color:var(--muted)}
-.user{background:var(--panel);border:1px solid var(--line);padding:9px 13px;border-radius:10px}
-.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:15px}
-.card{background:linear-gradient(145deg,#151820,#101218);border:1px solid var(--line);border-radius:15px;padding:19px}
-.stat{font-size:28px;font-weight:800;margin-top:8px}.label{color:var(--muted);font-size:13px}
-.online{color:#4ade80}.offline{color:#ff5369}
-.content{display:grid;grid-template-columns:1.35fr .65fr;gap:15px;margin-top:15px}
-.panel{background:var(--panel);border:1px solid var(--line);border-radius:15px;padding:20px}
-.panel h2{margin:0 0 17px;font-size:17px}
-.server{display:flex;align-items:center;justify-content:space-between;padding:13px 0;border-bottom:1px solid var(--line)}
-.server:last-child{border:0}
-.server-name{display:flex;gap:11px;align-items:center}.icon{width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,var(--red),#8d1025);display:grid;place-items:center;font-weight:800}
-.badge{font-size:11px;padding:5px 8px;border-radius:20px;background:#10251a;color:#55df88}
-.quick{display:grid;gap:10px}.quick button,.danger{border:1px solid var(--line);background:var(--panel2);color:#fff;border-radius:9px;padding:12px;text-align:left;cursor:pointer}
-.quick button:hover{border-color:#555}
-.page{display:none}.page.active{display:block}
-.form{display:grid;gap:12px;max-width:700px}.field label{display:block;color:#b9bfca;font-size:13px;margin-bottom:6px}
-input,select,textarea{width:100%;background:#0b0d12;border:1px solid var(--line);color:#fff;border-radius:9px;padding:12px;outline:none}
-textarea{min-height:130px;resize:vertical}
-.primary{border:0;background:linear-gradient(90deg,var(--red),#ff536b);color:white;border-radius:9px;padding:12px 16px;cursor:pointer;font-weight:700}
-.notice{background:#19150b;border:1px solid #4c3c12;color:#d9c98b;padding:12px;border-radius:9px;margin-bottom:15px}
-.log{font-family:monospace;color:#aeb4c1;line-height:1.8;background:#0b0d12;border-radius:10px;padding:15px}
-@media(max-width:800px){
- .sidebar{width:68px;padding:15px 8px}.logo{font-size:0;text-align:center}.logo span{font-size:22px}
- .nav button{font-size:0;text-align:center}.nav button:before{content:"◆";font-size:15px}
- .main{margin-left:68px;width:calc(100% - 68px);padding:15px}.grid{grid-template-columns:repeat(2,1fr)}.content{grid-template-columns:1fr}
- .user{display:none}
-}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bot Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: '#5865F2',
+            darkBg: '#0f172a',
+            cardBg: '#1e293b',
+            borderBg: '#334155'
+          }
+        }
+      }
+    }
+  </script>
 </head>
-<body>
-<div class="app">
-<aside class="sidebar">
-  <div class="logo">VMI <span>BOT</span></div>
-  <div class="nav">
-    <button class="active" onclick="showPage('dashboard',this)">Tổng quan</button>
-    <button onclick="showPage('servers',this)">Server</button>
-    <button onclick="showPage('commands',this)">Lệnh bot</button>
-    <button onclick="showPage('automod',this)">AutoMod</button>
-    <button onclick="showPage('logs',this)">Logs</button>
-    <button onclick="showPage('settings',this)">Cài đặt</button>
-  </div>
-</aside>
+<body class="bg-darkBg text-slate-100 flex h-screen overflow-hidden font-sans">
 
-<main class="main">
-<section id="dashboard" class="page active">
-  <div class="top"><div class="title"><h1>Dashboard</h1><p>Quản lý VMI Bot của bạn</p></div><div class="user">Admin</div></div>
-  <div class="grid">
-    <div class="card"><div class="label">Trạng thái bot</div><div class="stat online">Online</div></div>
-    <div class="card"><div class="label">Servers</div><div class="stat">12</div></div>
-    <div class="card"><div class="label">Users</div><div class="stat">8,492</div></div>
-    <div class="card"><div class="label">Commands hôm nay</div><div class="stat">1,284</div></div>
-  </div>
-  <div class="content">
-    <div class="panel"><h2>Server gần đây</h2>
-      <div class="server"><div class="server-name"><div class="icon">K</div><div><b>KingMC</b><div class="label">1,240 thành viên</div></div></div><span class="badge">Online</span></div>
-      <div class="server"><div class="server-name"><div class="icon">V</div><div><b>VMI Community</b><div class="label">642 thành viên</div></div></div><span class="badge">Online</span></div>
-      <div class="server"><div class="server-name"><div class="icon">S</div><div><b>Survival VN</b><div class="label">391 thành viên</div></div></div><span class="badge">Online</span></div>
+  <!-- Sidebar -->
+  <aside class="w-64 bg-cardBg border-r border-borderBg flex flex-col justify-between p-4">
+    <div>
+      <!-- Bot Info Header -->
+      <div class="flex items-center space-x-3 mb-8 px-2">
+        <div class="w-10 h-10 rounded-full bg-brand flex items-center justify-center font-bold text-lg">B</div>
+        <div>
+          <h1 class="font-bold text-base leading-tight">Alexander Bot</h1>
+          <span class="text-xs text-green-400 flex items-center gap-1">
+            <span class="w-2 h-2 rounded-full bg-green-400 inline-block"></span> Online
+          </span>
+        </div>
+      </div>
+
+      <!-- Navigation -->
+      <nav class="space-y-1">
+        <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-brand text-white font-medium">
+          <i class="fa-solid fa-chart-line w-5"></i> Tổng quan
+        </a>
+        <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition">
+          <i class="fa-solid fa-building-columns w-5"></i> Ngân hàng & Kinh tế
+        </a>
+        <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition">
+          <i class="fa-solid fa-shield-halved w-5"></i> Quản trị máy chủ
+        </a>
+        <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition">
+          <i class="fa-solid fa-gear w-5"></i> Cài đặt chung
+        </a>
+      </nav>
     </div>
-    <div class="panel"><h2>Thao tác nhanh</h2><div class="quick">
-      <button onclick="alert('Chức năng gửi thông báo đã sẵn sàng để nối API.')">Gửi thông báo</button>
-      <button onclick="showPage('commands',document.querySelectorAll('.nav button')[2])">Quản lý commands</button>
-      <button onclick="showPage('automod',document.querySelectorAll('.nav button')[3])">Cấu hình AutoMod</button>
-    </div></div>
-  </div>
-</section>
 
-<section id="servers" class="page">
-<div class="top"><div class="title"><h1>Quản lý Server</h1><p>Chọn server để cấu hình bot</p></div></div>
-<div class="panel"><div class="server"><div class="server-name"><div class="icon">K</div><div><b>KingMC</b><div class="label">ID: 123456789</div></div></div><button class="primary">Cấu hình</button></div>
-<div class="server"><div class="server-name"><div class="icon">V</div><div><b>VMI Community</b><div class="label">ID: 987654321</div></div></div><button class="primary">Cấu hình</button></div></div>
-</section>
+    <!-- User Profile Footer -->
+    <div class="border-t border-borderBg pt-4 flex items-center justify-between px-2">
+      <div class="flex items-center gap-2">
+        <div class="w-8 h-8 rounded-full bg-slate-600 flex items-center justify-center text-xs">U</div>
+        <span class="text-sm font-medium">AdminUser</span>
+      </div>
+      <button class="text-slate-400 hover:text-red-400 transition">
+        <i class="fa-solid fa-right-from-bracket"></i>
+      </button>
+    </div>
+  </aside>
 
-<section id="commands" class="page">
-<div class="top"><div class="title"><h1>Lệnh Bot</h1><p>Tạo và quản lý command</p></div></div>
-<div class="panel"><div class="form">
-<div class="field"><label>Tên command</label><input id="cmd" placeholder="ban"></div>
-<div class="field"><label>Mô tả</label><input placeholder="Ban một thành viên"></div>
-<div class="field"><label>Quyền sử dụng</label><select><option>Administrator</option><option>Moderator</option><option>Everyone</option></select></div>
-<button class="primary" onclick="createCmd()">Lưu command</button>
-<div id="cmdmsg"></div>
-</div></div>
-</section>
+  <!-- Main Content -->
+  <main class="flex-1 overflow-y-auto p-8">
+    
+    <!-- Top Stats -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <div class="bg-cardBg border border-borderBg rounded-xl p-5">
+        <div class="flex justify-between items-center text-slate-400 mb-2">
+          <span class="text-sm font-medium">Tổng Server</span>
+          <i class="fa-solid fa-server text-brand"></i>
+        </div>
+        <div class="text-2xl font-bold">1,248</div>
+      </div>
+      
+      <div class="bg-cardBg border border-borderBg rounded-xl p-5">
+        <div class="flex justify-between items-center text-slate-400 mb-2">
+          <span class="text-sm font-medium">Người dùng phục vụ</span>
+          <i class="fa-solid fa-users text-green-400"></i>
+        </div>
+        <div class="text-2xl font-bold">458,920</div>
+      </div>
 
-<section id="automod" class="page">
-<div class="top"><div class="title"><h1>AutoMod</h1><p>Bảo vệ server tự động</p></div></div>
-<div class="notice">Đây là giao diện mẫu. Khi nối backend Discord, các thiết lập này sẽ được lưu vào server.</div>
-<div class="panel"><div class="form">
-<div class="field"><label>Spam protection</label><select><option>Bật</option><option>Tắt</option></select></div>
-<div class="field"><label>Chống link</label><select><option>Bật</option><option>Tắt</option></select></div>
-<div class="field"><label>Từ khóa cấm</label><textarea placeholder="spam&#10;scam&#10;..."></textarea></div>
-<button class="primary" onclick="alert('Đã lưu cấu hình mẫu.')">Lưu cấu hình</button>
-</div></div>
-</section>
+      <div class="bg-cardBg border border-borderBg rounded-xl p-5">
+        <div class="flex justify-between items-center text-slate-400 mb-2">
+          <span class="text-sm font-medium">Lệnh thực thi (24h)</span>
+          <i class="fa-solid fa-terminal text-yellow-400"></i>
+        </div>
+        <div class="text-2xl font-bold">89,102</div>
+      </div>
+    </div>
 
-<section id="logs" class="page">
-<div class="top"><div class="title"><h1>Logs</h1><p>Lịch sử hoạt động của bot</p></div></div>
-<div class="panel"><div class="log">[13:35:12] Bot connected<br>[13:35:20] Slash commands loaded: 24<br>[13:36:04] /ping — user: Admin<br>[13:37:18] AutoMod checked message<br>[13:38:02] Dashboard connected</div></div>
-</section>
+    <!-- Chart Section -->
+    <div class="bg-cardBg border border-borderBg rounded-xl p-6 mb-8">
+      <h2 class="text-lg font-bold mb-4">Tần suất lệnh gọi trong tuần</h2>
+      <div class="h-64">
+        <canvas id="activityChart"></canvas>
+      </div>
+    </div>
 
-<section id="settings" class="page">
-<div class="top"><div class="title"><h1>Cài đặt</h1><p>Cấu hình dashboard</p></div></div>
-<div class="panel"><div class="form">
-<div class="field"><label>Tên dashboard</label><input value="VMI BOT"></div>
-<div class="field"><label>Theme</label><select><option>Dark Red</option><option>Dark</option></select></div>
-<div class="field"><label>Thông báo</label><select><option>Bật</option><option>Tắt</option></select></div>
-<button class="primary" onclick="alert('Đã lưu cài đặt.')">Lưu thay đổi</button>
-</div></div>
-</section>
-</main>
-</div>
-<script>
-function showPage(id,btn){
- document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
- document.getElementById(id).classList.add('active');
- document.querySelectorAll('.nav button').forEach(x=>x.classList.remove('active'));
- if(btn)btn.classList.add('active');
-}
-function createCmd(){
- const name=document.getElementById('cmd').value.trim();
- document.getElementById('cmdmsg').innerHTML=name?'<span class="online">Đã lưu /'+name+'</span>':'<span class="offline">Nhập tên command.</span>';
-}
-</script>
+    <!-- Quick Module Toggles -->
+    <h2 class="text-lg font-bold mb-4">Tính năng hệ thống</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      
+      <div class="bg-cardBg border border-borderBg rounded-xl p-4 flex items-center justify-between">
+        <div>
+          <h3 class="font-semibold">Hệ thống Ngân hàng</h3>
+          <p class="text-xs text-slate-400">Cho phép giao dịch, gửi tiết kiệm và cổ phiếu.</p>
+        </div>
+        <label class="relative inline-flex items-center cursor-pointer">
+          <input type="checkbox" checked class="sr-only peer">
+          <div class="w-11 h-6 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand"></div>
+        </label>
+      </div>
+
+      <div class="bg-cardBg border border-borderBg rounded-xl p-4 flex items-center justify-between">
+        <div>
+          <h3 class="font-semibold">Tự động Phân quyền (Auto Role)</h3>
+          <p class="text-xs text-slate-400">Tự gán vai trò khi thành viên mới tham gia.</p>
+        </div>
+        <label class="relative inline-flex items-center cursor-pointer">
+          <input type="checkbox" class="sr-only peer">
+          <div class="w-11 h-6 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand"></div>
+        </label>
+      </div>
+
+    </div>
+  </main>
+
+  <script>
+    // Khởi tạo biểu đồ Chart.js
+    const ctx = document.getElementById('activityChart').getContext('2d');
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: ['Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7', 'CN'],
+        datasets: [{
+          label: 'Lệnh/ngày',
+          data: [12000, 19000, 15000, 25000, 22000, 30000, 28000],
+          borderColor: '#5865F2',
+          backgroundColor: 'rgba(88, 101, 242, 0.1)',
+          fill: true,
+          tension: 0.4
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { grid: { color: '#334155' }, ticks: { color: '#94a3b8' } },
+          y: { grid: { color: '#334155' }, ticks: { color: '#94a3b8' } }
+        }
+      }
+    });
+  </script>
 </body>
 </html>
